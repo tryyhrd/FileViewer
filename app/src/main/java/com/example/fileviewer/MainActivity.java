@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
     private GOSTAdapter gostAdapter;
     private List<GOST> gostList = new ArrayList<GOST>();
 
+    private APIService apiService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewGosts = (RecyclerView) findViewById(R.id.gostEducation);
 
         setupRecyclerView();
-        loadGostsFromDatabase();
+        loadGostsFromMySQL();
     }
 
     private void setupRecyclerView() {
@@ -56,15 +58,20 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewGosts.setAdapter(gostAdapter);
     }
 
-    private void loadGostsFromDatabase() {
-        List<GOST> loadedGosts = dbHelper.getAllGosts();
-        gostAdapter.updateData(loadedGosts);
+    private void loadGostsFromMySQL() {
 
-        if (loadedGosts.isEmpty()) {
-            Toast.makeText(this, "ГОСТы не найдены", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Загружено ГОСТов: " + loadedGosts.size(), Toast.LENGTH_SHORT).show();
-        }
+        apiService.getAllGosts(new APIService.GostListListener() {
+            @Override
+            public void onSuccess(List<GOST> gosts) {
+                gostAdapter.updateData(gosts);
+                Toast.makeText(MainActivity.this, "Загружено ГОСТов: " + gosts.size(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void showShortGostInfo(GOST gost) {

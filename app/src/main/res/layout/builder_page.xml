@@ -20,14 +20,14 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/education"
+            android:src="@drawable/building"
             android:layout_gravity="center"/>
 
         <TextView
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Образование"
+            android:text="Строительство"
             android:textStyle="bold"
             android:textColor="@color/black"
             android:gravity="center"
@@ -37,11 +37,13 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Нормы, регулирующие приложения ИИ в образовательных технологях, от школ и онлайн-платформ"
+            android:text="ГОСТы и нормативы по использованию ИИ в проектировании, контроле строительства и эксплуатации зданий"
             android:textColor="@color/black"
             android:gravity="center"
-            android:textSize="12sp"
-            android:layout_marginBottom="8dp"/>
+            android:textSize="11sp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -72,15 +74,15 @@
         </LinearLayout>
     </LinearLayout>
 
-   <androidx.recyclerview.widget.RecyclerView
-       android:id="@+id/gostEducation"
-       android:layout_width="match_parent"
-       android:layout_height="match_parent"
-       android:background="@drawable/header_background_public_page"
-       android:layout_marginRight="16dp"
-       android:layout_marginLeft="16dp"
-       android:layout_marginBottom="16dp">
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/gostEducation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/header_background_public_page"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="16dp">
 
-   </androidx.recyclerview.widget.RecyclerView>
+    </androidx.recyclerview.widget.RecyclerView>
 
 </LinearLayout>

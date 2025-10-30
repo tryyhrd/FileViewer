@@ -72,15 +72,15 @@
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
             android:layout_columnSpan="2"
-            android:layout_margin="8dp"
+            android:layout_margin="5dp"
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/item_background"
             android:padding="12dp">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/socials" />
 
             <TextView
@@ -98,15 +98,15 @@
             android:layout_height="0dp"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            android:layout_margin="8dp"
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/item_background"
-            android:padding="12dp">
+            android:padding="12dp"
+            android:layout_margin="5dp">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/education" />
 
             <TextView
@@ -124,15 +124,15 @@
             android:layout_height="0dp"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            android:layout_margin="8dp"
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/item_background"
-            android:padding="12dp">
+            android:padding="12dp"
+            android:layout_margin="5dp">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/building" />
 
             <TextView
@@ -150,15 +150,15 @@
             android:layout_height="0dp"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            android:layout_margin="8dp"
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/item_background"
-            android:padding="12dp">
+            android:padding="12dp"
+            android:layout_margin="5dp">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/culture" />
 
             <TextView
@@ -176,15 +176,15 @@
             android:layout_height="0dp"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            android:layout_margin="8dp"
+            android:layout_margin="5dp"
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/item_background"
             android:padding="12dp">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/healthing" />
 
             <TextView
@@ -202,15 +202,15 @@
             android:layout_height="0dp"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            android:layout_margin="8dp"
+            android:layout_margin="5dp"
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/item_background"
             android:padding="12dp">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/uris" />
 
             <TextView
@@ -228,15 +228,15 @@
             android:layout_height="0dp"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            android:layout_margin="8dp"
+            android:layout_margin="5dp"
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/item_background"
             android:padding="12dp">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/science" />
 
             <TextView
@@ -254,15 +254,15 @@
             android:layout_height="0dp"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            android:layout_margin="8dp"
+            android:layout_margin="5dp"
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/item_background"
             android:padding="12dp">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/uris" />
 
             <TextView
@@ -280,15 +280,15 @@
             android:layout_height="0dp"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            android:layout_margin="8dp"
+            android:layout_margin="5dp"
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/item_background"
             android:padding="12dp">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/uris" />
 
             <TextView
