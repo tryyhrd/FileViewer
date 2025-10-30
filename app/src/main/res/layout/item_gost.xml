@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/item_background"
+    android:padding="16dp"
+    android:layout_margin="8dp">
+
+    <TextView
+        android:id="@+id/tvGostCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="00. ГОСТ Р 57723-2017"
+        android:textColor="#232B38"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/tvGostTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Информационные технологии. Системы образовательные электронные"
+        android:textColor="#232B38"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/tvGostDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Общие положения для электронных образовательных систем"
+        android:textColor="#666666"
+        android:textSize="12sp"/>
+
+</LinearLayout>
