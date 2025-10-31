@@ -1,4 +1,4 @@
-package com.example.fileviewer;
+package com.example.fileviewer.Models;
 
 import com.google.gson.annotations.SerializedName;
 

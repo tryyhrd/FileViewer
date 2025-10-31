@@ -1,11 +1,15 @@
-package com.example.fileviewer;
+package com.example.fileviewer.Adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.fileviewer.Models.Document;
+import com.example.fileviewer.R;
 
 import java.util.List;
 
@@ -20,16 +24,10 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
 
     static class DocumentViewHolder extends RecyclerView.ViewHolder {
         TextView tvDocumentTitle;
-        TextView tvDocumentDate;
-        TextView tvDocumentStatus;
-        TextView tvSectionsCount;
 
         DocumentViewHolder(View itemView) {
             super(itemView);
             tvDocumentTitle = itemView.findViewById(R.id.tvDocumentTitle);
-            tvDocumentDate = itemView.findViewById(R.id.tvDocumentDate);
-            tvDocumentStatus = itemView.findViewById(R.id.tvDocumentStatus);
-            tvSectionsCount = itemView.findViewById(R.id.tvSectionsCount);
         }
     }
 
@@ -50,29 +48,26 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
     public void onBindViewHolder(@NonNull DocumentViewHolder holder, int position) {
         final Document document = documentList.get(position);
 
-        // Устанавливаем данные в View
         holder.tvDocumentTitle.setText(document.title);
 
-        if (document.publication_date != null) {
-            holder.tvDocumentDate.setText("Дата: " + document.publication_date.toString());
-        } else {
-            holder.tvDocumentDate.setText("Дата не указана");
-        }
+//        if (document.publication_date != null) {
+//            holder.tvDocumentDate.setText("Дата: " + document.publication_date.toString());
+//        } else {
+//            holder.tvDocumentDate.setText("Дата не указана");
+//        }
+//
+//        if (document.status != null) {
+//            holder.tvDocumentStatus.setText("Статус: " + document.status);
+//        } else {
+//            holder.tvDocumentStatus.setText("Статус не указан");
+//        }
+//
+//        if (document.sections != null) {
+//            holder.tvSectionsCount.setText("Разделов: " + document.sections.size());
+//        } else {
+//            holder.tvSectionsCount.setText("Разделов: 0");
+//        }
 
-        if (document.status != null) {
-            holder.tvDocumentStatus.setText("Статус: " + document.status);
-        } else {
-            holder.tvDocumentStatus.setText("Статус не указан");
-        }
-
-        // Показываем количество разделов
-        if (document.sections != null) {
-            holder.tvSectionsCount.setText("Разделов: " + document.sections.size());
-        } else {
-            holder.tvSectionsCount.setText("Разделов: 0");
-        }
-
-        // Обработчики кликов
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

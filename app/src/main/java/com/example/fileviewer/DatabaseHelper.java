@@ -61,27 +61,4 @@ class DatabaseHelper extends SQLiteOpenHelper {
             db.insert(TABLE_GOSTS, null, values);
         }
     }
-
-    List<GOST> getAllGosts() {
-        List<GOST> gostList = new ArrayList<GOST>();
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        String query = "SELECT * FROM " + TABLE_GOSTS + " ORDER BY " + COLUMN_NUMBER;
-        Cursor cursor = db.rawQuery(query, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                GOST gost = new GOST(
-                        cursor.getLong(cursor.getColumnIndex(COLUMN_ID)),
-                        cursor.getString(cursor.getColumnIndex(COLUMN_NUMBER)),
-                        cursor.getString(cursor.getColumnIndex(COLUMN_CODE)),
-                        cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)),
-                        cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION))
-                );
-                gostList.add(gost);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return gostList;
-    }
 }
