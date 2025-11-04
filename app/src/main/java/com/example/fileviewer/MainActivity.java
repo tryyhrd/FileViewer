@@ -1,67 +1,103 @@
 package com.example.fileviewer;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.GridLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fileviewer.Adapters.CategoryAdapter;
 import com.example.fileviewer.Adapters.DocumentAdapter;
 import com.example.fileviewer.Common.APIService;
+import com.example.fileviewer.Models.Category;
 import com.example.fileviewer.Models.Document;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Объявление переменных класса
-    private DatabaseHelper dbHelper;
-    private RecyclerView recyclerViewDocuments;
-    private DocumentAdapter documentAdapter;
-    private List<Document> documentList = new ArrayList<>();
+    private RecyclerView recyclerViewCategories;
+    private CategoryAdapter categoryAdapter;
+    private List<Category> categoryList = new ArrayList<>();
     private APIService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.public_page);
+        setContentView(R.layout.activity_main);
 
         initComponents();
         setupRecyclerView();
-        loadDocumentsFromAPI();
+        loadCategoriesFromAPI();
     }
     private void initComponents() {
-        dbHelper = new DatabaseHelper(this);
         apiService = new APIService(this);
-        recyclerViewDocuments = findViewById(R.id.gostEducation);
+        recyclerViewCategories = findViewById(R.id.recyclerViewCategories);
     }
     private void setupRecyclerView() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerViewDocuments.setLayoutManager(layoutManager);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
 
-        documentAdapter = new DocumentAdapter(documentList, new DocumentAdapter.OnItemClickListener() {
+        layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
-            public void onItemClick(Document document) {
-            }
-
-            @Override
-            public void onItemLongClick(Document document) {
+            public int getSpanSize(int position) {
+                return position == 0 ? 2 : 1;
             }
         });
-        recyclerViewDocuments.setAdapter(documentAdapter);
-    }
-    private void loadDocumentsFromAPI() {
 
-        apiService.getAllDocuments(new APIService.DocumentsListener() {
+        recyclerViewCategories.setLayoutManager(layoutManager);
+
+        categoryAdapter = new CategoryAdapter(categoryList, new CategoryAdapter.OnItemClickListener() {
             @Override
-            public void onSuccess(List<Document> documents) {
+            public void onItemClick(Category category) {
+                openCategoryDocuments(category);
+            }
+        });
+        recyclerViewCategories.setAdapter(categoryAdapter);
+    }
+
+    private void openCategoryDocuments(Category category) {
+        Intent intent = new Intent(MainActivity.this, CategoryDocumentsActivity.class);
+        intent.putExtra("category_name", category.name);
+        startActivity(intent);
+    }
+
+    private List<Category> getUniqueCategories(List<Category> categories) {
+        List<Category> uniqueCategories = new ArrayList<>();
+        Set<String> categoryNames = new HashSet<>();
+
+        for (Category category : categories) {
+            if (!categoryNames.contains(category.name)) {
+                categoryNames.add(category.name);
+                uniqueCategories.add(category);
+            }
+        }
+        return uniqueCategories;
+    }
+    private void loadCategoriesFromAPI() {
+        apiService.getAllCategories(new APIService.CategoriesListener() {
+            @Override
+            public void onSuccess(List<Category> categories) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        documentAdapter.updateData(documents);
+                        List<Category> uniqueCategories = getUniqueCategories(categories);
+                        categoryList.clear();
+                        categoryList.addAll(categories);
+
+                        categoryAdapter.updateData(uniqueCategories);
+
                         Toast.makeText(MainActivity.this,
-                                "Загружено документов: " + documents.size(),
+                                "Загружено категорий: " + categories.size(),
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -81,9 +117,34 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if (dbHelper != null) {
-            dbHelper.close();
-        }
         super.onDestroy();
     }
+
+    //    private void loadDocumentsFromAPI() {
+//
+//        apiService.getAllDocuments(new APIService.DocumentsListener() {
+//            @Override
+//            public void onSuccess(List<Document> documents) {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        documentAdapter.updateData(documents);
+//                        Toast.makeText(MainActivity.this,
+//                                "Загружено документов: " + documents.size(),
+//                                Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onError(String error) {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//            }
+//        });
+//    }
 }

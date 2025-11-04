@@ -15,17 +15,13 @@ public class Category {
     @SerializedName("level_id")
     public int level_id;
 
-    @SerializedName("CountDocumentCategory")
-    public int CountDocumentCategory;
-
     public Category() {
     }
 
-    public Category(int id, String name, boolean is_deleted, int level_id, int countDocumentCategory) {
+    public Category(int id, String name, boolean is_deleted, int level_id) {
         this.id = id;
         this.name = name;
         this.is_deleted = is_deleted;
         this.level_id = level_id;
-        this.CountDocumentCategory = countDocumentCategory;
     }
 }
