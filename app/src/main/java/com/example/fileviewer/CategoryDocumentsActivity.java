@@ -22,6 +22,7 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
     private List<Document> documentList = new ArrayList<>();
     private APIService apiService;
     private TextView tvHeader;
+    private int categoryId;
     private String categoryName;
 
     @Override
@@ -29,6 +30,7 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.public_page);
 
+        categoryId = getIntent().getIntExtra("category_id", -1);
         categoryName = getIntent().getStringExtra("category_name");
 
         initComponents();
@@ -66,22 +68,21 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
     }
 
     private void loadDocumentsByCategory() {
-        apiService.getAllDocuments(new APIService.DocumentsListener() {
+
+        if (categoryId == -1) {
+            Toast.makeText(this, "Ошибка: категория не выбрана", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        apiService.getDocumentsByCategory(categoryId, new APIService.DocumentsListener() {
             @Override
             public void onSuccess(List<Document> documents) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        List<Document> filteredDocuments = new ArrayList<>();
-                        for (Document doc : documents) {
-                            if (doc.title != null && doc.title.equals(categoryName)) {
-                                filteredDocuments.add(doc);
-                            }
-                        }
-
-                        documentAdapter.updateData(filteredDocuments);
+                        documentAdapter.updateData(documents);
                         Toast.makeText(CategoryDocumentsActivity.this,
-                                "Найдено документов: " + filteredDocuments.size(),
+                                "Найдено документов: " + documents.size(),
                                 Toast.LENGTH_SHORT).show();
                     }
                 });

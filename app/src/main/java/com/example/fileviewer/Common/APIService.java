@@ -50,8 +50,6 @@ public class APIService {
     public void getAllDocuments(final DocumentsListener listener) {
         String url = BASE_URL + "api/Documents/Read";
 
-        Log.d(TAG, "Requesting documents from: " + url);
-
         JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
@@ -86,8 +84,6 @@ public class APIService {
     public void getAllCategories(final CategoriesListener listener) {
         String url = BASE_URL + "api/Categories/Read";
 
-        Log.d(TAG, "Requesting categories from: " + url);
-
         JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
@@ -113,6 +109,40 @@ public class APIService {
                         }
                         Log.e(TAG, "Volley error: " + errorMsg);
                         listener.onError("Ошибка загрузки категорий: " + errorMsg);
+                    }
+                }
+        );
+        requestQueue.add(request);
+    }
+
+    public void getDocumentsByCategory(int categoryId, final DocumentsListener listener) {
+        String url = BASE_URL + "api/Documents/ByCategory/" + categoryId;
+
+        JsonArrayRequest request = new JsonArrayRequest(
+                Request.Method.GET, url, null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d(TAG, "Documents by category response received");
+                        try {
+                            Type listType = new TypeToken<List<Document>>(){}.getType();
+                            List<Document> documents = gson.fromJson(response.toString(), listType);
+                            listener.onSuccess(documents);
+                        } catch (Exception e) {
+                            Log.e(TAG, "JSON parsing error: " + e.getMessage());
+                            listener.onError("Ошибка парсинга документов категории: " + e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        String errorMsg = "Network error";
+                        if (error.networkResponse != null) {
+                            errorMsg = "HTTP " + error.networkResponse.statusCode;
+                        }
+                        Log.e(TAG, "Volley error: " + errorMsg);
+                        listener.onError("Ошибка загрузки документов категории: " + errorMsg);
                     }
                 }
         );

@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openCategoryDocuments(Category category) {
         Intent intent = new Intent(MainActivity.this, CategoryDocumentsActivity.class);
+        intent.putExtra("category_id", category.id);
         intent.putExtra("category_name", category.name);
         startActivity(intent);
     }
