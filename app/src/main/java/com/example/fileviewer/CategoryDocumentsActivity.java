@@ -1,6 +1,9 @@
 package com.example.fileviewer;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +31,7 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.public_page);
+        setContentView(R.layout.categories_page);
 
         categoryId = getIntent().getIntExtra("category_id", -1);
         categoryName = getIntent().getStringExtra("category_name");
@@ -37,6 +40,7 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
         setupUI(categoryName);
         setupRecyclerView();
         loadDocumentsByCategory();
+        setupBackButton();
     }
 
     private void initComponents() {
@@ -56,8 +60,7 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
         documentAdapter = new DocumentAdapter(documentList, new DocumentAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Document document) {
-                Toast.makeText(CategoryDocumentsActivity.this,
-                        "Открыт документ: " + document.title, Toast.LENGTH_SHORT).show();
+                openDocument(document);
             }
 
             @Override
@@ -98,5 +101,23 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    public void openDocument(Document document){
+        Intent intent = new Intent(CategoryDocumentsActivity.this, DocumentViewActivity.class);
+        intent.putExtra("document", document);
+        startActivity(intent);
+    }
+
+    private void setupBackButton() {
+        ImageButton backButton = findViewById(R.id.backButton);
+        if (backButton != null) {
+            backButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
     }
 }

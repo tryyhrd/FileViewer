@@ -2,7 +2,9 @@ package com.example.fileviewer.Models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class DocumentCategory {
+import java.io.Serializable;
+
+public class DocumentCategory implements Serializable {
     @SerializedName("id")
     public int id;
 

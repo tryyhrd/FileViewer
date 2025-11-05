@@ -1,9 +1,11 @@
 package com.example.fileviewer.Models;
 
 import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
 import java.util.List;
 
-public class Level {
+public class Level implements Serializable {
     @SerializedName("id")
     public int id;
 

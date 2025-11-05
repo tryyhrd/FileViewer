@@ -1,8 +1,12 @@
 package com.example.fileviewer.Models;
 
+import android.text.Html;
+
 import com.google.gson.annotations.SerializedName;
 
-public class Section {
+import java.io.Serializable;
+
+public class Section implements Serializable {
     @SerializedName("id")
     public int id;
 
@@ -31,5 +35,31 @@ public class Section {
         this.content = content;
         this.order = order;
         this.is_deleted = is_deleted;
+    }
+
+    public CharSequence getFormattedContent() {
+        if (content == null) return "";
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            return Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY);
+        } else {
+            return Html.fromHtml(content);
+        }
+    }
+
+    public CharSequence getFormattedTitle() {
+        if (title == null || title.isEmpty()) {
+            return "";
+        }
+
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                return Html.fromHtml(title, Html.FROM_HTML_MODE_LEGACY);
+            } else {
+                return Html.fromHtml(title);
+            }
+        } catch (Exception e) {
+            return title;
+        }
     }
 }

@@ -93,12 +93,12 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         List<Category> uniqueCategories = getUniqueCategories(categories);
                         categoryList.clear();
-                        categoryList.addAll(categories);
+                        categoryList.addAll(uniqueCategories);
 
                         categoryAdapter.updateData(uniqueCategories);
 
                         Toast.makeText(MainActivity.this,
-                                "Загружено категорий: " + categories.size(),
+                                "Загружено категорий: " + uniqueCategories.size(),
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -120,32 +120,4 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
-
-    //    private void loadDocumentsFromAPI() {
-//
-//        apiService.getAllDocuments(new APIService.DocumentsListener() {
-//            @Override
-//            public void onSuccess(List<Document> documents) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        documentAdapter.updateData(documents);
-//                        Toast.makeText(MainActivity.this,
-//                                "Загружено документов: " + documents.size(),
-//                                Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onError(String error) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
-//                    }
-//                });
-//            }
-//        });
-//    }
 }

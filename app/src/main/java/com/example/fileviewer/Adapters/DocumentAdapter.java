@@ -50,23 +50,6 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
 
         holder.tvDocumentTitle.setText(document.title);
 
-//        if (document.publication_date != null) {
-//            holder.tvDocumentDate.setText("Дата: " + document.publication_date.toString());
-//        } else {
-//            holder.tvDocumentDate.setText("Дата не указана");
-//        }
-//
-//        if (document.status != null) {
-//            holder.tvDocumentStatus.setText("Статус: " + document.status);
-//        } else {
-//            holder.tvDocumentStatus.setText("Статус не указан");
-//        }
-//
-//        if (document.sections != null) {
-//            holder.tvSectionsCount.setText("Разделов: " + document.sections.size());
-//        } else {
-//            holder.tvSectionsCount.setText("Разделов: 0");
-//        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

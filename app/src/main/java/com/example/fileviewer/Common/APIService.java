@@ -1,27 +1,33 @@
 package com.example.fileviewer.Common;
 
 import android.content.Context;
+import android.text.Html;
 import android.util.Log;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.fileviewer.Models.Category;
 import com.example.fileviewer.Models.Document;
 import com.example.fileviewer.Models.Level;
+import com.example.fileviewer.Models.Section;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class APIService {
     private static final String TAG = "ApiService";
-    private static final String BASE_URL = "http://10.0.2.2:5068/";
+    private static final String BASE_URL = "http://10.0.2.2:5068";
     private RequestQueue requestQueue;
     private Gson gson;
 
@@ -48,7 +54,7 @@ public class APIService {
     }
 
     public void getAllDocuments(final DocumentsListener listener) {
-        String url = BASE_URL + "api/Documents/Read";
+        String url = BASE_URL + "/api/Documents/Read";
 
         JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET, url, null,
@@ -82,7 +88,7 @@ public class APIService {
     }
 
     public void getAllCategories(final CategoriesListener listener) {
-        String url = BASE_URL + "api/Categories/Read";
+        String url = BASE_URL + "/api/Categories/Read";
 
         JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET, url, null,
@@ -116,7 +122,7 @@ public class APIService {
     }
 
     public void getDocumentsByCategory(int categoryId, final DocumentsListener listener) {
-        String url = BASE_URL + "api/Documents/ByCategory/" + categoryId;
+        String url = BASE_URL + "/api/Documents/ByCategory/" + categoryId;
 
         JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET, url, null,
@@ -147,6 +153,85 @@ public class APIService {
                 }
         );
         requestQueue.add(request);
+    }
+
+    public void getDocumentSections(int documentId, SectionsListener listener) {
+        String url = BASE_URL + "/api/Documents/ReadId?id=" + documentId;
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            List<Section> sections = parseSectionsFromDocument(response);
+                            listener.onSuccess(sections);
+                        } catch (Exception e) {
+                            listener.onError("Ошибка парсинга секций: " + e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        listener.onError("Ошибка сети: " + error.getMessage());
+                    }
+                }
+        );
+
+        requestQueue.add(request);
+    }
+
+    private List<Section> parseSectionsFromDocument(JSONObject json) throws JSONException {
+        List<Section> sections = new ArrayList<>();
+
+        Log.d("APIService", "Parsing sections from document response");
+
+        if (json.has("sections") && !json.isNull("sections")) {
+            JSONArray sectionsArray = json.getJSONArray("sections");
+            Log.d("APIService", "Found " + sectionsArray.length() + " sections");
+
+            for (int i = 0; i < sectionsArray.length(); i++) {
+                JSONObject sectionJson = sectionsArray.getJSONObject(i);
+                Section section = new Section();
+
+                if (sectionJson.has("id")) {
+                    section.id = sectionJson.getInt("id");
+                }
+                if (sectionJson.has("title")) {
+                    section.title = sectionJson.getString("title");
+                } else {
+                    section.title = "";
+                }
+                if (sectionJson.has("content")) {
+                    section.content = sectionJson.getString("content");
+                    Log.d("APIService", "Section content: " + section.content);
+                } else {
+                    section.content = "";
+                }
+                if (sectionJson.has("order_index")) {
+                    section.order = sectionJson.getInt("order_index");
+                } else {
+                    section.order = i;
+                }
+                if (sectionJson.has("document_id")) {
+                    section.document_id = sectionJson.getInt("document_id");
+                }
+
+                sections.add(section);
+            }
+        } else {
+            Log.d("APIService", "No sections found in document");
+        }
+
+        return sections;
+    }
+
+    public interface SectionsListener {
+        void onSuccess(List<Section> sections);
+        void onError(String error);
     }
 
     public void getAllLevels(final LevelsListener listener) {
