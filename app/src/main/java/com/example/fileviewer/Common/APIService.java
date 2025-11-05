@@ -53,6 +53,48 @@ public class APIService {
         void onError(String error);
     }
 
+    // ДОБАВЛЕННЫЙ МЕТОД
+    public interface DocumentListener {
+        void onSuccess(Document document);
+        void onError(String error);
+    }
+
+    // ДОБАВЛЕННЫЙ МЕТОД: Получение документа по ID
+    public void getDocumentById(int documentId, final DocumentListener listener) {
+        String url = BASE_URL + "/api/Documents/ReadId?id=" + documentId;
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d(TAG, "Document by ID response received");
+                        try {
+                            Document document = gson.fromJson(response.toString(), Document.class);
+                            listener.onSuccess(document);
+                        } catch (Exception e) {
+                            Log.e(TAG, "JSON parsing error: " + e.getMessage());
+                            listener.onError("Ошибка парсинга документа: " + e.getMessage());
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        String errorMsg = "Network error";
+                        if (error.networkResponse != null) {
+                            errorMsg = "HTTP " + error.networkResponse.statusCode;
+                        }
+                        Log.e(TAG, "Volley error: " + errorMsg);
+                        listener.onError("Ошибка загрузки документа: " + errorMsg);
+                    }
+                }
+        );
+        requestQueue.add(request);
+    }
+
     public void getAllDocuments(final DocumentsListener listener) {
         String url = BASE_URL + "/api/Documents/Read";
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -15,16 +16,14 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/black"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="8dp"
+        android:gravity="start" />
 
-    <TextView
-        android:id="@+id/tvSectionContent"
+    <WebView
+        android:id="@+id/webViewSectionContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Содержимое секции"
-        android:textSize="16sp"
-        android:textColor="@color/gray_dark"
-        android:lineSpacingExtra="2dp"
-        android:textIsSelectable="true" />
+        android:background="@android:color/transparent"
+        tools:ignore="WebViewLayout" />
 
 </LinearLayout>

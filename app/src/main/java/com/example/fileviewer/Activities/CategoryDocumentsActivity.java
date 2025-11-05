@@ -1,4 +1,4 @@
-package com.example.fileviewer;
+package com.example.fileviewer.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.fileviewer.Adapters.DocumentAdapter;
 import com.example.fileviewer.Common.APIService;
 import com.example.fileviewer.Models.Document;
+import com.example.fileviewer.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +106,7 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
 
     public void openDocument(Document document){
         Intent intent = new Intent(CategoryDocumentsActivity.this, DocumentViewActivity.class);
-        intent.putExtra("document", document);
+        intent.putExtra("document_id", document.id);
         startActivity(intent);
     }
 

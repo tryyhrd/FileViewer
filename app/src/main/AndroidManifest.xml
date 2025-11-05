@@ -17,7 +17,7 @@
         tools:targetApi="31"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".MainActivity"
+            android:name=".Activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,12 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CategoryDocumentsActivity"
+        <activity android:name=".Activities.CategoryDocumentsActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity"/>
-        <activity android:name=".DocumentViewActivity"
+            android:parentActivityName=".Activities.MainActivity"/>
+        <activity android:name=".Activities.DocumentViewActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".Activities.MainActivity"/>
     </application>
 
 </manifest>

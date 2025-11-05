@@ -1,23 +1,16 @@
-package com.example.fileviewer;
+package com.example.fileviewer.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.GridLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fileviewer.Adapters.CategoryAdapter;
-import com.example.fileviewer.Adapters.DocumentAdapter;
 import com.example.fileviewer.Common.APIService;
 import com.example.fileviewer.Models.Category;
-import com.example.fileviewer.Models.Document;
+import com.example.fileviewer.R;
 
 import java.util.ArrayList;
 import java.util.HashSet;
