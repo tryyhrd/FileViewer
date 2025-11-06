@@ -32,7 +32,7 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.categories_page);
+        setContentView(R.layout.activity_category);
 
         categoryId = getIntent().getIntExtra("category_id", -1);
         categoryName = getIntent().getStringExtra("category_name");
@@ -61,7 +61,10 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
         documentAdapter = new DocumentAdapter(documentList, new DocumentAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Document document) {
-                openDocument(document);
+                if (document.sections.size() > 1)
+                    openDocument(document);
+                else
+                    openPdf(document);
             }
 
             @Override
@@ -106,6 +109,11 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
 
     public void openDocument(Document document){
         Intent intent = new Intent(CategoryDocumentsActivity.this, DocumentViewActivity.class);
+        intent.putExtra("document_id", document.id);
+        startActivity(intent);
+    }
+    public void openPdf(Document document){
+        Intent intent = new Intent(CategoryDocumentsActivity.this, PdfViewerActivity.class);
         intent.putExtra("document_id", document.id);
         startActivity(intent);
     }

@@ -31,6 +31,9 @@
         <activity android:name=".Activities.DocumentViewActivity"
             android:exported="false"
             android:parentActivityName=".Activities.MainActivity"/>
+        <activity android:name=".Activities.PdfViewerActivity"
+            android:exported="false"
+            android:parentActivityName=".Activities.MainActivity"/>
     </application>
 
 </manifest>

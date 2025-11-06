@@ -27,7 +27,7 @@ import java.util.List;
 
 public class APIService {
     private static final String TAG = "ApiService";
-    private static final String BASE_URL = "http://10.0.2.2:5068";
+    private static final String BASE_URL = "http://10.111.66.23:5068";
     private RequestQueue requestQueue;
     private Gson gson;
 
@@ -48,18 +48,12 @@ public class APIService {
         void onError(String error);
     }
 
-    public interface LevelsListener {
-        void onSuccess(List<Level> levels);
-        void onError(String error);
-    }
-
-    // ДОБАВЛЕННЫЙ МЕТОД
     public interface DocumentListener {
         void onSuccess(Document document);
         void onError(String error);
     }
 
-    // ДОБАВЛЕННЫЙ МЕТОД: Получение документа по ID
+
     public void getDocumentById(int documentId, final DocumentListener listener) {
         String url = BASE_URL + "/api/Documents/ReadId?id=" + documentId;
 
@@ -75,7 +69,6 @@ public class APIService {
                             Document document = gson.fromJson(response.toString(), Document.class);
                             listener.onSuccess(document);
                         } catch (Exception e) {
-                            Log.e(TAG, "JSON parsing error: " + e.getMessage());
                             listener.onError("Ошибка парсинга документа: " + e.getMessage());
                         }
                     }
@@ -103,13 +96,11 @@ public class APIService {
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
-                        Log.d(TAG, "Documents response received, length: " + response.length());
                         try {
                             Type listType = new TypeToken<List<Document>>(){}.getType();
                             List<Document> documents = gson.fromJson(response.toString(), listType);
                             listener.onSuccess(documents);
                         } catch (Exception e) {
-                            Log.e(TAG, "JSON parsing error: " + e.getMessage());
                             listener.onError("Ошибка парсинга документов: " + e.getMessage());
                         }
                     }
@@ -121,7 +112,6 @@ public class APIService {
                         if (error.networkResponse != null) {
                             errorMsg = "HTTP " + error.networkResponse.statusCode;
                         }
-                        Log.e(TAG, "Volley error: " + errorMsg);
                         listener.onError("Ошибка загрузки документов: " + errorMsg);
                     }
                 }
@@ -137,13 +127,11 @@ public class APIService {
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
-                        Log.d(TAG, "Categories response received, length: " + response.length());
                         try {
                             Type listType = new TypeToken<List<Category>>(){}.getType();
                             List<Category> categories = gson.fromJson(response.toString(), listType);
                             listener.onSuccess(categories);
                         } catch (Exception e) {
-                            Log.e(TAG, "JSON parsing error: " + e.getMessage());
                             listener.onError("Ошибка парсинга категорий: " + e.getMessage());
                         }
                     }
@@ -276,33 +264,9 @@ public class APIService {
         void onError(String error);
     }
 
-    public void getAllLevels(final LevelsListener listener) {
-        String url = BASE_URL + "levels";
-
-        JsonArrayRequest request = new JsonArrayRequest(
-                Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        try {
-                            Type listType = new TypeToken<List<Level>>(){}.getType();
-                            List<Level> levels = gson.fromJson(response.toString(), listType);
-                            listener.onSuccess(levels);
-                        } catch (Exception e) {
-                            Log.e(TAG, "JSON parsing error: " + e.getMessage());
-                            listener.onError("Ошибка парсинга уровней");
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "Volley error: " + error.getMessage());
-                        listener.onError("Ошибка загрузки уровней: " + error.getMessage());
-                    }
-                }
-        );
-        requestQueue.add(request);
+    public interface PdfUrlListener {
+        void onSuccess(String pdfUrl);
+        void onError(String error);
     }
 
     public void searchDocuments(String query, final DocumentsListener listener) {

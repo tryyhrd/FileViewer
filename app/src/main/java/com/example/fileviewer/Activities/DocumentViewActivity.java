@@ -32,15 +32,14 @@ public class DocumentViewActivity extends AppCompatActivity {
     private SectionAdapter sectionAdapter;
     private List<Section> sectionList = new ArrayList<>();
     private APIService apiService;
-    private int documentId; // Изменено на int
-    private Document currentDocument; // Добавлено поле для хранения документа
+    private int documentId;
+    private Document currentDocument;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_document_detail);
+        setContentView(R.layout.activity_document);
 
-        // Получаем ID документа из Intent
         documentId = getIntent().getIntExtra("document_id", -1);
 
         if (documentId == -1) {
@@ -67,9 +66,9 @@ public class DocumentViewActivity extends AppCompatActivity {
         apiService.getDocumentById(docId, new APIService.DocumentListener() {
             @Override
             public void onSuccess(Document document) {
-                currentDocument = document; // Сохраняем документ
-                displayDocument(document); // Отображаем основную информацию
-                loadDocumentSections(docId); // Загружаем секции
+                currentDocument = document;
+                displayDocument(document);
+                loadDocumentSections(docId);
             }
 
             @Override
@@ -87,19 +86,13 @@ public class DocumentViewActivity extends AppCompatActivity {
         });
     }
 
-    // МЕТОД displayDocument - отображает основную информацию о документе
     private void displayDocument(Document document) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // Отображаем заголовок
                 if (document.title != null && !document.title.isEmpty()) {
                     tvDocumentTitle.setText(document.title);
-                } else {
-                    tvDocumentTitle.setText("Без названия");
                 }
-
-                // Отображаем дату публикации
                 if (document.publication_date != null &&
                         !document.publication_date.equals("null")) {
                     String formattedDate = formatDate(String.valueOf(document.publication_date));
@@ -109,7 +102,6 @@ public class DocumentViewActivity extends AppCompatActivity {
                     tvDocumentDate.setVisibility(View.GONE);
                 }
 
-                // Отображаем статус
                 if (document.status != null &&
                         !document.status.isEmpty() &&
                         !document.status.equals("null")) {
@@ -124,14 +116,11 @@ public class DocumentViewActivity extends AppCompatActivity {
 
     private String formatDate(String dateString) {
         try {
-            // Пробуем разные форматы даты
             SimpleDateFormat inputFormat;
 
             if (dateString.contains("T")) {
-                // Формат с временем: "2024-01-01T00:00:00"
                 inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
             } else {
-                // Простой формат даты: "2024-01-01"
                 inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             }
 
@@ -139,7 +128,7 @@ public class DocumentViewActivity extends AppCompatActivity {
             Date date = inputFormat.parse(dateString);
             return outputFormat.format(date);
         } catch (Exception e) {
-            return dateString; // Возвращаем оригинальную строку при ошибке
+            return dateString;
         }
     }
 
