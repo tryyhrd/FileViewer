@@ -89,10 +89,6 @@ public class MainActivity extends AppCompatActivity {
                         categoryList.addAll(uniqueCategories);
 
                         categoryAdapter.updateData(uniqueCategories);
-
-                        Toast.makeText(MainActivity.this,
-                                "Загружено категорий: " + uniqueCategories.size(),
-                                Toast.LENGTH_SHORT).show();
                     }
                 });
             }

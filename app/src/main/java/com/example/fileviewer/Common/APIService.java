@@ -27,7 +27,7 @@ import java.util.List;
 
 public class APIService {
     private static final String TAG = "ApiService";
-    private static final String BASE_URL = "http://10.111.66.23:5068";
+    public static final String BASE_URL = "http://10.0.2.2:5068";
     private RequestQueue requestQueue;
     private Gson gson;
 
@@ -51,6 +51,10 @@ public class APIService {
     public interface DocumentListener {
         void onSuccess(Document document);
         void onError(String error);
+    }
+
+    public static String getPdfUrl(){
+        return BASE_URL + "/api/documents/";
     }
 
 

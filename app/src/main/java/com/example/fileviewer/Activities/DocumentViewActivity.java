@@ -43,7 +43,6 @@ public class DocumentViewActivity extends AppCompatActivity {
         documentId = getIntent().getIntExtra("document_id", -1);
 
         if (documentId == -1) {
-            Toast.makeText(this, "Ошибка: не передан ID документа", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }

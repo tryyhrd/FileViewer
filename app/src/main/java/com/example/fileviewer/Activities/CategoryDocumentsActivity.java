@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.fileviewer.Adapters.DocumentAdapter;
 import com.example.fileviewer.Common.APIService;
 import com.example.fileviewer.Models.Document;
+import com.example.fileviewer.Models.Section;
 import com.example.fileviewer.R;
 
 import java.util.ArrayList;
@@ -63,10 +64,12 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
             public void onItemClick(Document document) {
                 if (document.sections.size() > 1)
                     openDocument(document);
-                else
-                    openPdf(document);
+                else if (document.sections.size() == 1) {
+                    Section section = document.sections.get(0);
+                    if (section.title.equals("content"))
+                        openPdf(document);
+                }
             }
-
             @Override
             public void onItemLongClick(Document document) {
             }
@@ -88,9 +91,6 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         documentAdapter.updateData(documents);
-                        Toast.makeText(CategoryDocumentsActivity.this,
-                                "Найдено документов: " + documents.size(),
-                                Toast.LENGTH_SHORT).show();
                     }
                 });
             }

@@ -1,13 +1,22 @@
 package com.example.fileviewer.Activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.example.fileviewer.Common.APIService;
 import com.example.fileviewer.Models.Document;
@@ -15,10 +24,7 @@ import com.example.fileviewer.R;
 
 public class PdfViewerActivity extends AppCompatActivity {
 
-    private TextView tvDocumentTitle;
-    private APIService apiService;
     private int documentId;
-    private String pdfUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,63 +39,77 @@ public class PdfViewerActivity extends AppCompatActivity {
         }
 
         initViews();
-        loadDocumentInfo();
+        openPdf(APIService.getPdfUrl() + documentId + ".pdf");
     }
 
     private void initViews() {
-        apiService = new APIService(this);
-        tvDocumentTitle = findViewById(R.id.tvDocumentTitle);
-
         ImageButton backButton = findViewById(R.id.backButton);
+
         if (backButton != null) {
             backButton.setOnClickListener(v -> finish());
         }
     }
 
-    private void loadDocumentInfo() {
-        apiService.getDocumentById(documentId, new APIService.DocumentListener() {
-            @Override
-            public void onSuccess(Document document) {
-                generatePdfUrl(document);
-                openPdfWithGoogleIntents();
-            }
+//    private void setupWebView() {
+//        WebSettings webSettings = webView.getSettings();
+//
+//        webSettings.setJavaScriptEnabled(true);
+//
+//        webSettings.setBuiltInZoomControls(true);
+//        webSettings.setDisplayZoomControls(false);
+//        webSettings.setSupportZoom(true);
+//
+//        webSettings.setLoadWithOverviewMode(true);
+//        webSettings.setUseWideViewPort(true);
+//        webSettings.setDomStorageEnabled(true);
+//
+//        webView.setWebViewClient(new WebViewClient() {
+//            @Override
+//            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+//                super.onPageStarted(view, url, favicon);
+//            }
+//
+//            @Override
+//            public void onPageFinished(WebView view, String url) {
+//                super.onPageFinished(view, url);
+//            }
+//
+//            @Override
+//            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+//                super.onReceivedError(view, request, error);
+//                Toast.makeText(PdfViewerActivity.this,
+//                        "Ошибка загрузки PDF", Toast.LENGTH_LONG).show();
+//            }
+//        });
+//
+//        webView.setWebChromeClient(new WebChromeClient() {
+//            @Override
+//            public void onProgressChanged(WebView view, int newProgress) {
+//                super.onProgressChanged(view, newProgress);
+//            }
+//        });
+//    }
 
-            @Override
-            public void onError(String error) {
-                Toast.makeText(PdfViewerActivity.this,
-                        "Ошибка загрузки документа: " + error, Toast.LENGTH_LONG).show();
-                generatePdfUrl(null);
-            }
-        });
-    }
-
-    private void generatePdfUrl(Document document) {
-        pdfUrl = "http://10.111.66.23:5068/api/documents/" + documentId + ".pdf";
-    }
-
-    private void openPdfWithGoogleIntents() {
-        if (pdfUrl == null || pdfUrl.isEmpty()) {
-            Toast.makeText(this, "URL документа не доступен", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private void openPdf(String pdfUrl) {
         try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            String docsViewerUrl = pdfUrl;
+            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder()
+                    .setShowTitle(true)
+                    .build();
 
-            intent.setData(Uri.parse(docsViewerUrl));
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setPackage("com.android.chrome");
+            customTabsIntent.intent.setPackage("com.android.chrome");
 
-            try {
-                startActivity(intent);
-                Toast.makeText(this, "Открываю PDF...", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                intent.setPackage(null);
-                startActivity(intent);
-            }
+            customTabsIntent.launchUrl(this, Uri.parse(pdfUrl));
 
         } catch (Exception e) {
-            Toast.makeText(this, "Ошибка открытия PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
+//            openInAnyBrowser(pdfUrl);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+//        if (webView != null) {
+//            webView.destroy();
+//        }
+        super.onDestroy();
     }
 }
