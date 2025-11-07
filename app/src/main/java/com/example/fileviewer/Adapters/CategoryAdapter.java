@@ -58,7 +58,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         notifyDataSetChanged();
     }
 
-    static class CategoryViewHolder extends RecyclerView.ViewHolder {
+    public static class CategoryViewHolder extends RecyclerView.ViewHolder {
         ImageView ivCategoryIcon;
         TextView tvCategoryName;
 
@@ -73,23 +73,22 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             ivCategoryIcon.setImageResource(getIconResource(category.name));
         }
 
-        private int getIconResource(String categoryName) {
-            if (categoryName == null) return R.drawable.uris;
+        public static int getIconResource(String categoryName) {
+            if (categoryName == null) return R.drawable.ic_uris;
             String name = categoryName.toLowerCase();
 
             switch (name) {
-                case "здравоохранение": return R.drawable.healthing;
-                case "образование": return R.drawable.education;
-                case "строительство": return R.drawable.building;
-                case "общее": return R.drawable.socials;
-                case "транспорт": return R.drawable.uris;
-                case "финансы": return R.drawable.uris;
-                case "промышленность": return R.drawable.uris;
-                case "экономика": return R.drawable.uris;
-                case "торговля": return R.drawable.uris;
-                case "информационные технологии":
-                case "информационны...": return R.drawable.uris;
-                default: return R.drawable.uris;
+                case "здравоохранение": return R.drawable.ic_healthing;
+                case "образование": return R.drawable.ic_education;
+                case "строительство": return R.drawable.ic_building;
+                case "общее": return R.drawable.ic_socials;
+                case "транспорт": return R.drawable.ic_transport;
+                case "финансы": return R.drawable.ic_finance;
+                case "промышленность": return R.drawable.ic_industry;
+                case "экономика": return R.drawable.ic_economy;
+                case "торговля": return R.drawable.ic_trading;
+                case "информационные технологии": return R.drawable.ic_itechnology;
+                default: return R.drawable.ic_uris;
             }
         }
     }

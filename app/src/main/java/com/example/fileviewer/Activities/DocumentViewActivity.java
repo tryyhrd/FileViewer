@@ -33,7 +33,6 @@ public class DocumentViewActivity extends AppCompatActivity {
     private List<Section> sectionList = new ArrayList<>();
     private APIService apiService;
     private int documentId;
-    private Document currentDocument;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +64,6 @@ public class DocumentViewActivity extends AppCompatActivity {
         apiService.getDocumentById(docId, new APIService.DocumentListener() {
             @Override
             public void onSuccess(Document document) {
-                currentDocument = document;
                 displayDocument(document);
                 loadDocumentSections(docId);
             }
@@ -161,12 +159,6 @@ public class DocumentViewActivity extends AppCompatActivity {
                         sectionList.clear();
                         sectionList.addAll(sections);
                         sectionAdapter.notifyDataSetChanged();
-
-                        if (sections.isEmpty()) {
-                            Toast.makeText(DocumentViewActivity.this,
-                                    "Содержание документа отсутствует",
-                                    Toast.LENGTH_SHORT).show();
-                        }
                     }
                 });
             }

@@ -9,8 +9,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fileviewer.Models.Document;
+import com.example.fileviewer.Models.Section;
 import com.example.fileviewer.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocumentViewHolder> {
@@ -77,7 +79,12 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
     }
 
     public void updateData(List<Document> newDocumentList) {
-        this.documentList = newDocumentList;
+        List<Document> actualDocuments = new ArrayList<>();
+        for (Document document: newDocumentList){
+            if (!document.sections.isEmpty())
+                actualDocuments.add(document);
+        }
+        this.documentList = actualDocuments;
         notifyDataSetChanged();
     }
 }

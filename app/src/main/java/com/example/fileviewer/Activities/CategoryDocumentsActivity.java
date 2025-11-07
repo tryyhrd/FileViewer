@@ -1,9 +1,11 @@
 package com.example.fileviewer.Activities;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -11,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fileviewer.Adapters.CategoryAdapter;
 import com.example.fileviewer.Adapters.DocumentAdapter;
 import com.example.fileviewer.Common.APIService;
 import com.example.fileviewer.Models.Document;
@@ -29,6 +32,7 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
     private TextView tvHeader;
     private int categoryId;
     private String categoryName;
+    private ImageView categoryImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +53,11 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
         apiService = new APIService(this);
         recyclerViewDocuments = findViewById(R.id.gostEducation);
         tvHeader = findViewById(R.id.header);
+        categoryImage = findViewById(R.id.categoryImage);
     }
 
     private void setupUI(String categoryName) {
+        categoryImage.setImageResource(CategoryAdapter.CategoryViewHolder.getIconResource(categoryName));
         tvHeader.setText(categoryName);
     }
 
