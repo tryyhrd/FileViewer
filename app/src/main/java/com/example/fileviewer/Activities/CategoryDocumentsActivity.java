@@ -1,22 +1,22 @@
 package com.example.fileviewer.Activities;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fileviewer.Adapters.CategoryAdapter;
 import com.example.fileviewer.Adapters.DocumentAdapter;
 import com.example.fileviewer.Common.APIService;
+import com.example.fileviewer.Models.Category;
 import com.example.fileviewer.Models.Document;
+import com.example.fileviewer.Models.Level;
 import com.example.fileviewer.Models.Section;
 import com.example.fileviewer.R;
 
@@ -28,11 +28,16 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
     private RecyclerView recyclerViewDocuments;
     private DocumentAdapter documentAdapter;
     private List<Document> documentList = new ArrayList<>();
+    private List<Document> allDocuments = new ArrayList<>();
+    private List<Category> allCategories = new ArrayList<>();
+    private List<Level> allLevels = new ArrayList<>();
     private APIService apiService;
     private TextView tvHeader;
+    private android.widget.EditText searchEditText;
     private int categoryId;
     private String categoryName;
     private ImageView categoryImage;
+    private String currentSearchQuery = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +47,16 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
         categoryId = getIntent().getIntExtra("category_id", -1);
         categoryName = getIntent().getStringExtra("category_name");
 
+        allLevels = (List<Level>) getIntent().getSerializableExtra("all_levels");
+        if (allLevels == null) {
+            allLevels = new ArrayList<>();
+        }
+
         initComponents();
         setupUI(categoryName);
+        setupSearch();
         setupRecyclerView();
-        loadDocumentsByCategory();
+        loadAllData();
         setupBackButton();
     }
 
@@ -54,74 +65,210 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
         recyclerViewDocuments = findViewById(R.id.gostEducation);
         tvHeader = findViewById(R.id.header);
         categoryImage = findViewById(R.id.categoryImage);
+        searchEditText = findViewById(R.id.searchEditText);
     }
 
     private void setupUI(String categoryName) {
-        categoryImage.setImageResource(CategoryAdapter.CategoryViewHolder.getIconResource(categoryName));
-        tvHeader.setText(categoryName);
+        if (categoryImage != null) {
+            categoryImage.setImageResource(com.example.fileviewer.Adapters.CategoryAdapter.CategoryViewHolder.getIconResource(categoryName));
+        }
+        if (tvHeader != null) {
+            tvHeader.setText(categoryName);
+        }
+    }
+
+    private void setupSearch() {
+        searchEditText.setOnEditorActionListener((v, actionId, event) -> {
+            performDocumentSearch();
+            return true;
+        });
+
+        searchEditText.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                currentSearchQuery = s.toString().trim();
+                filterDocuments();
+            }
+        });
+    }
+
+    private void performDocumentSearch() {
+        currentSearchQuery = searchEditText.getText().toString().trim();
+        filterDocuments();
+
+        android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(searchEditText.getWindowToken(), 0);
+    }
+
+    private void filterDocuments() {
+        List<Document> filteredDocuments = new ArrayList<>();
+
+        if (currentSearchQuery.isEmpty()) {
+            filteredDocuments.addAll(allDocuments);
+        } else {
+            String query = currentSearchQuery.toLowerCase();
+            for (Document document : allDocuments) {
+                if (document.title != null && document.title.toLowerCase().contains(query)) {
+                    filteredDocuments.add(document);
+                }
+            }
+        }
+
+        documentAdapter.updateData(filteredDocuments);
     }
 
     private void setupRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerViewDocuments.setLayoutManager(layoutManager);
 
-        documentAdapter = new DocumentAdapter(documentList, new DocumentAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Document document) {
-                if (document.sections.size() > 1)
-                    openDocument(document);
-                else if (document.sections.size() == 1) {
-                    Section section = document.sections.get(0);
-                    if (section.title.equals("content"))
-                        openPdf(document);
-                }
-            }
-            @Override
-            public void onItemLongClick(Document document) {
-            }
-        });
+        documentAdapter = new DocumentAdapter(documentList, allCategories, allLevels,
+                new DocumentAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(Document document) {
+                        if (document.sections != null && document.sections.size() > 1) {
+                            openDocument(document);
+                        } else if (document.sections != null && document.sections.size() == 1) {
+                            Section section = document.sections.get(0);
+                            if (section.title != null && section.title.equals("content")) {
+                                openPdf(document);
+                            } else {
+                                openDocument(document);
+                            }
+                        } else {
+                            openDocument(document);
+                        }
+                    }
+                });
         recyclerViewDocuments.setAdapter(documentAdapter);
     }
 
-    private void loadDocumentsByCategory() {
-
-        if (categoryId == -1) {
-            Toast.makeText(this, "Ошибка: категория не выбрана", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        apiService.getDocumentsByCategory(categoryId, new APIService.DocumentsListener() {
+    private void loadAllData() {
+        apiService.getAllCategories(new APIService.CategoriesListener() {
             @Override
-            public void onSuccess(List<Document> documents) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        documentAdapter.updateData(documents);
-                    }
+            public void onSuccess(List<Category> categories) {
+                runOnUiThread(() -> {
+                    allCategories.clear();
+                    allCategories.addAll(categories);
+                    loadDocuments();
                 });
             }
 
             @Override
             public void onError(String error) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(CategoryDocumentsActivity.this, error, Toast.LENGTH_LONG).show();
-                    }
+                runOnUiThread(() -> {
+                    loadDocuments();
                 });
             }
         });
     }
 
-    public void openDocument(Document document){
+    private void loadDocuments() {
+        if (categoryId == -1) {
+            loadDocumentsForAllLevels(categoryName);
+        } else {
+            loadDocumentsByCategoryIdDirect(categoryId);
+        }
+    }
+    private void loadDocumentsForAllLevels(String categoryName) {
+        List<Integer> allCategoryIds = new ArrayList<>();
+
+        for (Category category : allCategories) {
+            if (category.name.equals(categoryName)) {
+                allCategoryIds.add(category.id);
+            }
+        }
+
+        loadDocumentsForMultipleCategoriesWithErrorHandling(allCategoryIds);
+    }
+
+    private void loadDocumentsForMultipleCategoriesWithErrorHandling(List<Integer> categoryIds) {
+        final List<Document> allDocumentsList = new ArrayList<>();
+        final int totalCategories = categoryIds.size();
+        final int[] currentIndex = {0};
+
+        loadNextCategorySequentially(categoryIds, currentIndex, allDocumentsList, totalCategories);
+    }
+
+    private void loadNextCategorySequentially(List<Integer> categoryIds, int[] currentIndex,
+                                              List<Document> allDocumentsList, int totalCategories) {
+        if (currentIndex[0] >= totalCategories) {
+            runOnUiThread(() -> {
+                allDocuments.clear();
+                allDocuments.addAll(allDocumentsList);
+                filterDocuments();
+            });
+            return;
+        }
+
+        int categoryId = categoryIds.get(currentIndex[0]);
+        apiService.getDocumentsByCategory(categoryId, new APIService.DocumentsListener() {
+            @Override
+            public void onSuccess(List<Document> documents) {
+                allDocumentsList.addAll(documents);
+                currentIndex[0]++;
+                loadNextCategorySequentially(categoryIds, currentIndex, allDocumentsList, totalCategories);
+            }
+
+            @Override
+            public void onError(String error) {
+                currentIndex[0]++;
+                loadNextCategorySequentially(categoryIds, currentIndex, allDocumentsList, totalCategories);
+            }
+        });
+    }
+
+    private void loadDocumentsByCategoryIdDirect(int categoryId) {
+        apiService.getDocumentsByCategory(categoryId, new APIService.DocumentsListener() {
+            @Override
+            public void onSuccess(List<Document> documents) {
+                runOnUiThread(() -> {
+                    allDocuments.clear();
+                    allDocuments.addAll(documents);
+                    filterDocuments();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    Toast.makeText(CategoryDocumentsActivity.this,
+                            "Ошибка загрузки документов: " + error, Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
+    public void openDocument(Document document) {
         Intent intent = new Intent(CategoryDocumentsActivity.this, DocumentViewActivity.class);
         intent.putExtra("document_id", document.id);
         startActivity(intent);
     }
-    public void openPdf(Document document){
-        Intent intent = new Intent(CategoryDocumentsActivity.this, PdfViewerActivity.class);
-        intent.putExtra("document_id", document.id);
-        startActivity(intent);
+
+    public void openPdf(Document document) {
+        try {
+            String pdfUrl = APIService.getPdfUrl() + document.id + ".pdf";
+
+            androidx.browser.customtabs.CustomTabsIntent customTabsIntent =
+                    new androidx.browser.customtabs.CustomTabsIntent.Builder()
+                            .setShowTitle(true)
+                            .build();
+
+            customTabsIntent.intent.setPackage("com.android.chrome");
+            customTabsIntent.launchUrl(this, android.net.Uri.parse(pdfUrl));
+
+        } catch (Exception e) {
+            try {
+                String pdfUrl = APIService.getPdfUrl() + document.id + ".pdf";
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(pdfUrl));
+                startActivity(browserIntent);
+            } catch (Exception ex) {}
+        }
     }
 
     private void setupBackButton() {
@@ -134,5 +281,10 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

@@ -29,16 +29,13 @@ public class PdfViewerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_category);
 
         documentId = getIntent().getIntExtra("document_id", -1);
-
-        if (documentId == -1) {
-            finish();
-            return;
-        }
-
         initViews();
         openPdf(APIService.getPdfUrl() + documentId + ".pdf");
+
+        finish();
     }
 
     private void initViews() {
@@ -60,12 +57,22 @@ public class PdfViewerActivity extends AppCompatActivity {
             customTabsIntent.launchUrl(this, Uri.parse(pdfUrl));
 
         } catch (Exception e) {
-//            openInAnyBrowser(pdfUrl);
+                openInBrowser(pdfUrl);
         }
+    }
+
+    private void openInBrowser(String pdfUrl) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(pdfUrl));
+            startActivity(intent);
+
+        } catch (Exception ex) {}
     }
 
     @Override
     protected void onDestroy() {
+
         super.onDestroy();
     }
 }

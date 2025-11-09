@@ -16,6 +16,7 @@ public class Category implements Serializable {
 
     @SerializedName("level_id")
     public int level_id;
+    public int countDocumentCategory;
 
     public Category() {
     }

@@ -21,9 +21,9 @@ public class Level implements Serializable {
     public Level() {
     }
 
-    public Level(int id, String name, boolean is_deleted) {
+    public Level(int id, String name, List<Category> categories) {
         this.id = id;
         this.name = name;
-        this.is_deleted = is_deleted;
+        this.categories = categories;
     }
 }

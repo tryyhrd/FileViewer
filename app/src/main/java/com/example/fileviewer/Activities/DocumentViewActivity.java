@@ -1,6 +1,7 @@
 package com.example.fileviewer.Activities;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -19,8 +20,10 @@ import com.example.fileviewer.R;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class DocumentViewActivity extends AppCompatActivity {
 
@@ -112,20 +115,48 @@ public class DocumentViewActivity extends AppCompatActivity {
     }
 
     private String formatDate(String dateString) {
+        if (dateString == null || dateString.isEmpty() || dateString.equals("null")) {
+            return "не указана";
+        }
         try {
-            SimpleDateFormat inputFormat;
+            SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
 
-            if (dateString.contains("T")) {
-                inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-            } else {
-                inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            }
-
-            SimpleDateFormat outputFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
             Date date = inputFormat.parse(dateString);
-            return outputFormat.format(date);
+            String result = outputFormat.format(date);
+
+            Log.d("DateDebug", "Formatted date: " + result);
+            return result;
+
         } catch (Exception e) {
+            try {
+                String[] parts = dateString.split(" ");
+                if (parts.length >= 6) {
+                    String day = parts[2];
+                    String month = convertMonth(parts[1]);
+                    String year = parts[5];
+                    return day + "." + month + "." + year;
+                }
+            } catch (Exception ex) {}
+
             return dateString;
+        }
+    }
+    private String convertMonth(String monthName) {
+        switch (monthName.toLowerCase()) {
+            case "jan": return "01";
+            case "feb": return "02";
+            case "mar": return "03";
+            case "apr": return "04";
+            case "may": return "05";
+            case "jun": return "06";
+            case "jul": return "07";
+            case "aug": return "08";
+            case "sep": return "09";
+            case "oct": return "10";
+            case "nov": return "11";
+            case "dec": return "12";
+            default: return "01";
         }
     }
 

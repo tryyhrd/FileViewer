@@ -1,8 +1,6 @@
 package com.example.fileviewer.Common;
 
 import android.content.Context;
-import android.text.Html;
-import android.util.Log;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -26,16 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class APIService {
-    private static final String TAG = "ApiService";
-    public static final String BASE_URL = "http://10.0.2.2:5068";
+    public static final String BASE_URL = "http://192.168.0.104:5068";
     private RequestQueue requestQueue;
     private Gson gson;
 
     public APIService(Context context) {
         requestQueue = Volley.newRequestQueue(context);
-        gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                .create();
+        gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create();
     }
 
     public interface DocumentsListener {
@@ -53,41 +48,77 @@ public class APIService {
         void onError(String error);
     }
 
+    public interface LevelsListener {
+        void onSuccess(List<Level> levels);
+        void onError(String error);
+    }
+
+    public interface LevelsWithCategoriesListener {
+        void onSuccess(List<Level> levelsWithCategories);
+        void onError(String error);
+    }
+
+    public interface SectionsListener {
+        void onSuccess(List<Section> sections);
+        void onError(String error);
+    }
+
+    public void getAllLevelsWithCategories(final LevelsWithCategoriesListener listener) {
+        String url = BASE_URL + "/api/DocumentCategories/Read";
+
+        JsonArrayRequest request = new JsonArrayRequest(
+                Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        Type listType = new TypeToken<List<Level>>(){}.getType();
+                        List<Level> levelsWithCategories = gson.fromJson(response.toString(), listType);
+                        listener.onSuccess(levelsWithCategories);
+                    } catch (Exception e) {
+                        listener.onError("Ошибка парсинга уровней с категориями");
+                    }
+                },
+                error -> listener.onError(getErrorMessage(error))
+        );
+        requestQueue.add(request);
+    }
+
+    public void getAllLevels(final LevelsListener listener) {
+        String url = BASE_URL + "/api/Levels/Read";
+
+        JsonArrayRequest request = new JsonArrayRequest(
+                Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        Type listType = new TypeToken<List<Level>>(){}.getType();
+                        List<Level> levels = gson.fromJson(response.toString(), listType);
+                        listener.onSuccess(levels);
+                    } catch (Exception e) {
+                        listener.onError("Ошибка парсинга уровней");
+                    }
+                },
+                error -> listener.onError(getErrorMessage(error))
+        );
+        requestQueue.add(request);
+    }
+
     public static String getPdfUrl(){
         return BASE_URL + "/api/documents/";
     }
-
 
     public void getDocumentById(int documentId, final DocumentListener listener) {
         String url = BASE_URL + "/api/Documents/ReadId?id=" + documentId;
 
         JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.GET,
-                url,
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d(TAG, "Document by ID response received");
-                        try {
-                            Document document = gson.fromJson(response.toString(), Document.class);
-                            listener.onSuccess(document);
-                        } catch (Exception e) {
-                            listener.onError("Ошибка парсинга документа: " + e.getMessage());
-                        }
+                Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        Document document = gson.fromJson(response.toString(), Document.class);
+                        listener.onSuccess(document);
+                    } catch (Exception e) {
+                        listener.onError("Ошибка парсинга документа");
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        String errorMsg = "Network error";
-                        if (error.networkResponse != null) {
-                            errorMsg = "HTTP " + error.networkResponse.statusCode;
-                        }
-                        Log.e(TAG, "Volley error: " + errorMsg);
-                        listener.onError("Ошибка загрузки документа: " + errorMsg);
-                    }
-                }
+                error -> listener.onError(getErrorMessage(error))
         );
         requestQueue.add(request);
     }
@@ -97,28 +128,16 @@ public class APIService {
 
         JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        try {
-                            Type listType = new TypeToken<List<Document>>(){}.getType();
-                            List<Document> documents = gson.fromJson(response.toString(), listType);
-                            listener.onSuccess(documents);
-                        } catch (Exception e) {
-                            listener.onError("Ошибка парсинга документов: " + e.getMessage());
-                        }
+                response -> {
+                    try {
+                        Type listType = new TypeToken<List<Document>>(){}.getType();
+                        List<Document> documents = gson.fromJson(response.toString(), listType);
+                        listener.onSuccess(documents);
+                    } catch (Exception e) {
+                        listener.onError("Ошибка парсинга документов");
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        String errorMsg = "Network error";
-                        if (error.networkResponse != null) {
-                            errorMsg = "HTTP " + error.networkResponse.statusCode;
-                        }
-                        listener.onError("Ошибка загрузки документов: " + errorMsg);
-                    }
-                }
+                error -> listener.onError(getErrorMessage(error))
         );
         requestQueue.add(request);
     }
@@ -128,29 +147,16 @@ public class APIService {
 
         JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        try {
-                            Type listType = new TypeToken<List<Category>>(){}.getType();
-                            List<Category> categories = gson.fromJson(response.toString(), listType);
-                            listener.onSuccess(categories);
-                        } catch (Exception e) {
-                            listener.onError("Ошибка парсинга категорий: " + e.getMessage());
-                        }
+                response -> {
+                    try {
+                        Type listType = new TypeToken<List<Category>>(){}.getType();
+                        List<Category> categories = gson.fromJson(response.toString(), listType);
+                        listener.onSuccess(categories);
+                    } catch (Exception e) {
+                        listener.onError("Ошибка парсинга категорий");
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        String errorMsg = "Network error";
-                        if (error.networkResponse != null) {
-                            errorMsg = "HTTP " + error.networkResponse.statusCode;
-                        }
-                        Log.e(TAG, "Volley error: " + errorMsg);
-                        listener.onError("Ошибка загрузки категорий: " + errorMsg);
-                    }
-                }
+                error -> listener.onError(getErrorMessage(error))
         );
         requestQueue.add(request);
     }
@@ -160,143 +166,92 @@ public class APIService {
 
         JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        Log.d(TAG, "Documents by category response received");
-                        try {
-                            Type listType = new TypeToken<List<Document>>(){}.getType();
-                            List<Document> documents = gson.fromJson(response.toString(), listType);
-                            listener.onSuccess(documents);
-                        } catch (Exception e) {
-                            Log.e(TAG, "JSON parsing error: " + e.getMessage());
-                            listener.onError("Ошибка парсинга документов категории: " + e.getMessage());
-                        }
+                response -> {
+                    try {
+                        Type listType = new TypeToken<List<Document>>(){}.getType();
+                        List<Document> documents = gson.fromJson(response.toString(), listType);
+                        listener.onSuccess(documents);
+                    } catch (Exception e) {
+                        listener.onError("Ошибка парсинга документов категории");
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        String errorMsg = "Network error";
-                        if (error.networkResponse != null) {
-                            errorMsg = "HTTP " + error.networkResponse.statusCode;
-                        }
-                        Log.e(TAG, "Volley error: " + errorMsg);
-                        listener.onError("Ошибка загрузки документов категории: " + errorMsg);
-                    }
-                }
+                error -> listener.onError("Ошибка загрузки документов категории: " + getErrorMessage(error))
         );
         requestQueue.add(request);
     }
 
-    public void getDocumentSections(int documentId, SectionsListener listener) {
+    public void getDocumentsByCategoryWithRetry(int categoryId, final DocumentsListener listener, int maxRetries) {
+        getDocumentsByCategoryWithRetry(categoryId, listener, maxRetries, 0);
+    }
+
+    private void getDocumentsByCategoryWithRetry(int categoryId, final DocumentsListener listener, int maxRetries, int currentRetry) {
+        getDocumentsByCategory(categoryId, new DocumentsListener() {
+            @Override
+            public void onSuccess(List<Document> documents) {
+                listener.onSuccess(documents);
+            }
+
+            @Override
+            public void onError(String error) {
+                if (currentRetry < maxRetries) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    getDocumentsByCategoryWithRetry(categoryId, listener, maxRetries, currentRetry + 1);
+                } else {
+                    listener.onError(error + " (после " + maxRetries + " попыток)");
+                }
+            }
+        });
+    }
+
+    public void getDocumentSections(int documentId, final SectionsListener listener) {
         String url = BASE_URL + "/api/Documents/ReadId?id=" + documentId;
 
         JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.GET,
-                url,
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            List<Section> sections = parseSectionsFromDocument(response);
-                            listener.onSuccess(sections);
-                        } catch (Exception e) {
-                            listener.onError("Ошибка парсинга секций: " + e.getMessage());
-                        }
+                Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        List<Section> sections = parseSectionsFromDocument(response);
+                        listener.onSuccess(sections);
+                    } catch (Exception e) {
+                        listener.onError("Ошибка парсинга разделов");
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        listener.onError("Ошибка сети: " + error.getMessage());
-                    }
-                }
+                error -> listener.onError(getErrorMessage(error))
         );
-
         requestQueue.add(request);
     }
 
     private List<Section> parseSectionsFromDocument(JSONObject json) throws JSONException {
         List<Section> sections = new ArrayList<>();
 
-        Log.d("APIService", "Parsing sections from document response");
-
         if (json.has("sections") && !json.isNull("sections")) {
             JSONArray sectionsArray = json.getJSONArray("sections");
-            Log.d("APIService", "Found " + sectionsArray.length() + " sections");
 
             for (int i = 0; i < sectionsArray.length(); i++) {
                 JSONObject sectionJson = sectionsArray.getJSONObject(i);
                 Section section = new Section();
 
-                if (sectionJson.has("id")) {
-                    section.id = sectionJson.getInt("id");
-                }
-                if (sectionJson.has("title")) {
-                    section.title = sectionJson.getString("title");
-                } else {
-                    section.title = "";
-                }
-                if (sectionJson.has("content")) {
-                    section.content = sectionJson.getString("content");
-                    Log.d("APIService", "Section content: " + section.content);
-                } else {
-                    section.content = "";
-                }
-                if (sectionJson.has("order_index")) {
-                    section.order = sectionJson.getInt("order_index");
-                } else {
-                    section.order = i;
-                }
-                if (sectionJson.has("document_id")) {
-                    section.document_id = sectionJson.getInt("document_id");
-                }
+                if (sectionJson.has("id")) section.id = sectionJson.getInt("id");
+                section.title = sectionJson.optString("title", "");
+                section.content = sectionJson.optString("content", "");
+                section.order = sectionJson.optInt("order_index", i);
+                if (sectionJson.has("document_id")) section.document_id = sectionJson.getInt("document_id");
 
                 sections.add(section);
             }
-        } else {
-            Log.d("APIService", "No sections found in document");
         }
 
         return sections;
     }
 
-    public interface SectionsListener {
-        void onSuccess(List<Section> sections);
-        void onError(String error);
-    }
-
-    public interface PdfUrlListener {
-        void onSuccess(String pdfUrl);
-        void onError(String error);
-    }
-
-    public void searchDocuments(String query, final DocumentsListener listener) {
-        String url = BASE_URL + "documents/search?query=" + query;
-
-        JsonArrayRequest request = new JsonArrayRequest(
-                Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        try {
-                            Type listType = new TypeToken<List<Document>>(){}.getType();
-                            List<Document> documents = gson.fromJson(response.toString(), listType);
-                            listener.onSuccess(documents);
-                        } catch (Exception e) {
-                            listener.onError("Ошибка парсинга данных поиска");
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        listener.onError("Ошибка поиска: " + error.getMessage());
-                    }
-                }
-        );
-        requestQueue.add(request);
+    private String getErrorMessage(VolleyError error) {
+        if (error.networkResponse != null) {
+            return "HTTP " + error.networkResponse.statusCode;
+        }
+        return "Сетевая ошибка";
     }
 }
