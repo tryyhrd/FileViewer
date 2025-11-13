@@ -2,10 +2,13 @@ package com.example.fileviewer.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,19 +28,24 @@ import java.util.List;
 
 public class CategoryDocumentsActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerViewDocuments;
-    private DocumentAdapter documentAdapter;
     private List<Document> documentList = new ArrayList<>();
     private List<Document> allDocuments = new ArrayList<>();
     private List<Category> allCategories = new ArrayList<>();
     private List<Level> allLevels = new ArrayList<>();
+    private DocumentAdapter documentAdapter;
     private APIService apiService;
     private TextView tvHeader;
     private android.widget.EditText searchEditText;
+    private ImageView categoryImage;
     private int categoryId;
     private String categoryName;
-    private ImageView categoryImage;
     private String currentSearchQuery = "";
+    private boolean isLoading = false;
+
+    private RecyclerView recyclerViewDocuments;
+    private ProgressBar progressBar;
+    private Handler handler = new Handler(Looper.getMainLooper());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +74,9 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
         tvHeader = findViewById(R.id.header);
         categoryImage = findViewById(R.id.categoryImage);
         searchEditText = findViewById(R.id.searchEditText);
+        progressBar = findViewById(R.id.progressBar);
+
+        ShowLoading(true);
     }
 
     private void setupUI(String categoryName) {
@@ -93,10 +104,19 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(android.text.Editable s) {
                 currentSearchQuery = s.toString().trim();
-                filterDocuments();
+
+                handler.removeCallbacks(searchRunnable);
+                handler.postDelayed(searchRunnable, 500);
             }
         });
     }
+
+    private Runnable searchRunnable = new Runnable() {
+        @Override
+        public void run() {
+            filterDocuments();
+        }
+    };
 
     private void performDocumentSearch() {
         currentSearchQuery = searchEditText.getText().toString().trim();
@@ -149,6 +169,11 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
     }
 
     private void loadAllData() {
+        if (isLoading) return;
+
+        isLoading = true;
+        ShowLoading(true);
+
         apiService.getAllCategories(new APIService.CategoriesListener() {
             @Override
             public void onSuccess(List<Category> categories) {
@@ -184,6 +209,14 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
             }
         }
 
+        if (allCategoryIds.isEmpty()) {
+            runOnUiThread(() -> {
+                ShowLoading(false);
+                isLoading = false;
+            });
+            return;
+        }
+
         loadDocumentsForMultipleCategoriesWithErrorHandling(allCategoryIds);
     }
 
@@ -202,6 +235,11 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
                 allDocuments.clear();
                 allDocuments.addAll(allDocumentsList);
                 filterDocuments();
+
+                handler.postDelayed(() -> {
+                    ShowLoading(false);
+                    isLoading = false;
+                }, 300);
             });
             return;
         }
@@ -231,6 +269,11 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
                     allDocuments.clear();
                     allDocuments.addAll(documents);
                     filterDocuments();
+
+                    handler.postDelayed(() -> {
+                        ShowLoading(false);
+                        isLoading = false;
+                    }, 300);
                 });
             }
 
@@ -239,6 +282,9 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     Toast.makeText(CategoryDocumentsActivity.this,
                             "Ошибка загрузки документов: " + error, Toast.LENGTH_LONG).show();
+
+                    ShowLoading(false);
+                    isLoading = false;
                 });
             }
         });
@@ -283,8 +329,22 @@ public class CategoryDocumentsActivity extends AppCompatActivity {
         }
     }
 
+    private void ShowLoading(boolean show) {
+        runOnUiThread(() -> {
+            if (progressBar != null) {
+                progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+            if (recyclerViewDocuments != null) {
+                recyclerViewDocuments.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        handler.removeCallbacks(searchRunnable);
+        isLoading = false;
     }
 }

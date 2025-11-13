@@ -3,10 +3,13 @@ package com.example.fileviewer.Activities;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
     private int selectedLevelId = -1;
     private String currentSearchQuery = "";
 
+    private ProgressBar progressBar;
+    private View contentLayout;
+    private Handler handler = new Handler(Looper.getMainLooper());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,9 +64,12 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewCategories = findViewById(R.id.recyclerViewCategories);
         levelSpinner = findViewById(R.id.levelSpinner);
         searchEditText = findViewById(R.id.searchEditText);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     private void loadLevelsWithCategories() {
+        ShowLoading(true);
+
         apiService.getAllLevelsWithCategories(new APIService.LevelsWithCategoriesListener() {
             @Override
             public void onSuccess(List<Level> levels) {
@@ -90,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
                     List<Document> documentsWithSections = filterDocumentsWithSections(documents);
                     updateCategoryDocumentCounts(documentsWithSections);
                     applyFilters();
+
+                    handler.postDelayed(() -> ShowLoading(false), 300);
                 });
             }
 
@@ -97,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
             public void onError(String error) {
                 runOnUiThread(() -> {
                     applyFilters();
+
+                    ShowLoading(false);
                 });
             }
         });
@@ -161,13 +175,19 @@ public class MainActivity extends AppCompatActivity {
         levelSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ShowLoading(true);
+
                 if (position == 0) {
                     selectedLevelId = -1;
                 } else {
                     Level selectedLevel = levelList.get(position - 1);
                     selectedLevelId = selectedLevel.id;
                 }
-                applyFilters();
+
+                handler.postDelayed(() -> {
+                    applyFilters();
+                    ShowLoading(false);
+                }, 200);
 
                 if (view != null) {
                     ((TextView) view).setTextColor(Color.WHITE);
@@ -271,7 +291,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(android.text.Editable s) {
                 currentSearchQuery = s.toString().trim();
-                applyFilters();
             }
         });
     }
@@ -307,6 +326,17 @@ public class MainActivity extends AppCompatActivity {
 
         intent.putExtra("all_levels", new ArrayList<>(levelList));
         startActivity(intent);
+    }
+
+    private void ShowLoading(Boolean show){
+        runOnUiThread(() -> {
+            if (progressBar != null){
+                progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+            if (recyclerViewCategories != null) {
+                recyclerViewCategories.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
     }
 
     @Override

@@ -1,9 +1,12 @@
 package com.example.fileviewer.Activities;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,11 +34,14 @@ public class DocumentViewActivity extends AppCompatActivity {
     private TextView tvDocumentDate;
     private TextView tvDocumentStatus;
     private RecyclerView recyclerViewSections;
+    private ProgressBar progressBar;
 
     private SectionAdapter sectionAdapter;
-    private List<Section> sectionList = new ArrayList<>();
     private APIService apiService;
+    private List<Section> sectionList = new ArrayList<>();
     private int documentId;
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private boolean isLoading = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +67,17 @@ public class DocumentViewActivity extends AppCompatActivity {
         tvDocumentDate = findViewById(R.id.tvDocumentDate);
         tvDocumentStatus = findViewById(R.id.tvDocumentStatus);
         recyclerViewSections = findViewById(R.id.recyclerViewSections);
+        progressBar = findViewById(R.id.progressBar);
+
+        showLoading(true);
     }
 
     private void loadDocumentData(int docId) {
+        if (isLoading) return;
+
+        isLoading = true;
+        showLoading(true);
+
         apiService.getDocumentById(docId, new APIService.DocumentListener() {
             @Override
             public void onSuccess(Document document) {
@@ -76,9 +90,8 @@ public class DocumentViewActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(DocumentViewActivity.this,
-                                "Ошибка загрузки документа: " + error,
-                                Toast.LENGTH_LONG).show();
+                        showLoading(false);
+                        isLoading = false;
                         finish();
                     }
                 });
@@ -190,6 +203,15 @@ public class DocumentViewActivity extends AppCompatActivity {
                         sectionList.clear();
                         sectionList.addAll(sections);
                         sectionAdapter.notifyDataSetChanged();
+
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                showLoading(false);
+                                isLoading = false;
+                                updateUIAfterLoading();
+                            }
+                        }, 300);
                     }
                 });
             }
@@ -199,12 +221,46 @@ public class DocumentViewActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(DocumentViewActivity.this,
-                                "Ошибка загрузки содержания: " + error,
-                                Toast.LENGTH_LONG).show();
+                        showLoading(false);
+                        isLoading = false;
+                        updateUIAfterLoading();
                     }
                 });
             }
         });
+    }
+
+    private void updateUIAfterLoading() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (sectionList.isEmpty()) {
+                    recyclerViewSections.setVisibility(View.GONE);
+                } else {
+                    recyclerViewSections.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
+
+    private void showLoading(boolean show) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (progressBar != null) {
+                    progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+                if (recyclerViewSections != null) {
+                    recyclerViewSections.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
+        isLoading = false;
     }
 }

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class APIService {
-    public static final String BASE_URL = "http://192.168.0.104:5068";
+    public static final String BASE_URL = "http://10.0.2.2:5068";
     private RequestQueue requestQueue;
     private Gson gson;
 
@@ -75,25 +75,6 @@ public class APIService {
                         listener.onSuccess(levelsWithCategories);
                     } catch (Exception e) {
                         listener.onError("Ошибка парсинга уровней с категориями");
-                    }
-                },
-                error -> listener.onError(getErrorMessage(error))
-        );
-        requestQueue.add(request);
-    }
-
-    public void getAllLevels(final LevelsListener listener) {
-        String url = BASE_URL + "/api/Levels/Read";
-
-        JsonArrayRequest request = new JsonArrayRequest(
-                Request.Method.GET, url, null,
-                response -> {
-                    try {
-                        Type listType = new TypeToken<List<Level>>(){}.getType();
-                        List<Level> levels = gson.fromJson(response.toString(), listType);
-                        listener.onSuccess(levels);
-                    } catch (Exception e) {
-                        listener.onError("Ошибка парсинга уровней");
                     }
                 },
                 error -> listener.onError(getErrorMessage(error))
@@ -178,33 +159,6 @@ public class APIService {
                 error -> listener.onError("Ошибка загрузки документов категории: " + getErrorMessage(error))
         );
         requestQueue.add(request);
-    }
-
-    public void getDocumentsByCategoryWithRetry(int categoryId, final DocumentsListener listener, int maxRetries) {
-        getDocumentsByCategoryWithRetry(categoryId, listener, maxRetries, 0);
-    }
-
-    private void getDocumentsByCategoryWithRetry(int categoryId, final DocumentsListener listener, int maxRetries, int currentRetry) {
-        getDocumentsByCategory(categoryId, new DocumentsListener() {
-            @Override
-            public void onSuccess(List<Document> documents) {
-                listener.onSuccess(documents);
-            }
-
-            @Override
-            public void onError(String error) {
-                if (currentRetry < maxRetries) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                    getDocumentsByCategoryWithRetry(categoryId, listener, maxRetries, currentRetry + 1);
-                } else {
-                    listener.onError(error + " (после " + maxRetries + " попыток)");
-                }
-            }
-        });
     }
 
     public void getDocumentSections(int documentId, final SectionsListener listener) {
